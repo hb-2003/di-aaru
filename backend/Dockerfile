@@ -18,6 +18,8 @@ COPY config/ config/
 COPY src/ src/
 COPY public/ public/
 COPY scripts/ scripts/
+COPY database/ database/
+COPY data/ data/
 COPY types/ types/
 COPY tsconfig.json .
 COPY favicon.png .
