@@ -30,6 +30,8 @@ services:
         generateValue: true
       - key: TRANSFER_TOKEN_SALT
         generateValue: true
+      - key: VITE_API_URL
+        value: https://your-strapi-url.railway.app
       - key: CLOUDINARY_NAME
         sync: false
       - key: CLOUDINARY_KEY
