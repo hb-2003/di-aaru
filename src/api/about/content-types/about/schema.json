@@ -15,9 +15,20 @@
     "title": {
       "type": "string"
     },
+    "email": {
+      "type": "email"
+    },
+    "phone": {
+      "type": "integer"
+    },
     "blocks": {
       "type": "dynamiczone",
-      "components": ["shared.media", "shared.quote", "shared.rich-text", "shared.slider"]
+      "components": [
+        "shared.media",
+        "shared.quote",
+        "shared.rich-text",
+        "shared.slider"
+      ]
     }
   }
 }
