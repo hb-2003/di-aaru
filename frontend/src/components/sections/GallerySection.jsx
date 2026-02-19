@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { getImageUrl } from '../../utils/api';
 import './GallerySection.css';
+import MobileGallery from '../ui/MobileGallery';
 
 const GallerySection = ({ data }) => {
   const { title, images } = data;
@@ -50,6 +51,14 @@ const GallerySection = ({ data }) => {
               index={index}
             />
           ))}
+        </div>
+
+        <div className="gallery-mobile-slider">
+          <MobileGallery
+            images={galleryItems.map(item => ({ src: item.url, alt: item.title }))}
+            showPagination
+            loop
+          />
         </div>
       </div>
     </section>

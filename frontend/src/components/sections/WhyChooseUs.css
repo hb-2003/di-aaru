@@ -36,15 +36,16 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
+  gap: 1.25rem;
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
 }
 
 .reason-card {
   position: relative;
-  width: 350px;
-  min-height: 400px;
+  width: min(350px, 100%);
+  min-height: 25rem;
   padding: 4rem 2rem;
   background: white;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
@@ -56,6 +57,7 @@
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   border: 1px solid rgba(201, 169, 97, 0.1);
   z-index: 1;
+  flex-shrink: 0;
 }
 
 .reason-card::before {
@@ -79,8 +81,8 @@
 }
 
 .reason-icon {
-  width: 60px;
-  height: 60px;
+  width: 3.75rem;
+  height: 3.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,11 +120,29 @@
 }
 
 @media (max-width: 768px) {
+  .why-choose-us {
+    padding: var(--spacing-xl) 0;
+  }
+
+  .why-choose-us .section-header {
+    margin-bottom: var(--spacing-xl);
+    padding: 0 1rem;
+  }
+
   .reasons-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
   }
 
   .reason-card {
-    padding: var(--spacing-lg);
+    width: min(320px, 90vw);
+    min-height: 22rem;
+    padding: 3rem 1.5rem;
+  }
+
+  .reason-description {
+    max-width: 100%;
   }
 }

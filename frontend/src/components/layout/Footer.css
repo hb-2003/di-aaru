@@ -7,6 +7,7 @@
 
 .footer-container {
   max-width: 1600px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 3rem;
 }
@@ -74,8 +75,8 @@
 }
 
 .social-link {
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -78,6 +78,7 @@ const Header = ({ sections = [], globalSettings = null }) => {
       <div className="header-container">
         <a href="/" className="logo">
           <span className="logo-text">Di'aaru</span>
+          {/* <img src="../public/images/hero-fallback.png" alt="Di'aaru Logo" className="logo-image"  /> */}
         </a>
 
         <nav className={`nav ${menuOpen ? 'active' : ''}`}>

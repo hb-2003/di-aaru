@@ -5,7 +5,7 @@
 }
 
 .demo-hero {
-    height: 550px;
+    min-height: 34rem;
     display: grid;
     place-content: center;
 }

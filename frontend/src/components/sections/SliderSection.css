@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 70vh;
-  min-height: 500px;
+  min-height: 31rem;
   overflow: hidden;
 }
 
@@ -43,8 +43,8 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
+  width: 3.125rem;
+  height: 3.125rem;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -101,12 +101,12 @@
 @media (max-width: 768px) {
   .slider-section {
     height: 60vh;
-    min-height: 400px;
+    min-height: 25rem;
   }
 
   .slider-btn {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   .slider-btn.prev {

@@ -518,21 +518,64 @@ async function seed(strapi) {
 
 async function main() {
   const { createStrapi, compileStrapi } = require("@strapi/strapi");
+  let app;
+  let exitCode = 0;
+  let isShuttingDown = false;
+
+  const isTarnAbortError = (error) =>
+    error?.message === "aborted" &&
+    typeof error?.stack === "string" &&
+    error.stack.includes("tarn/dist/PendingOperation.js");
+
+  const handleUnhandledRejection = (reason) => {
+    if (isShuttingDown && isTarnAbortError(reason)) {
+      return;
+    }
+
+    console.error("Unhandled rejection during seeding:", reason);
+    process.exitCode = 1;
+  };
+
+  const handleUncaughtException = (error) => {
+    if (isShuttingDown && isTarnAbortError(error)) {
+      return;
+    }
+
+    console.error("Uncaught exception during seeding:", error);
+    process.exitCode = 1;
+  };
+
+  process.on("unhandledRejection", handleUnhandledRejection);
+  process.on("uncaughtException", handleUncaughtException);
 
   try {
     console.log("Compiling Strapi...");
     const appContext = await compileStrapi();
-    const app = await createStrapi(appContext).load();
+    app = await createStrapi(appContext).load();
 
     app.log.level = "info";
 
     await seed(app);
-
-    await app.destroy();
-    process.exit(0);
   } catch (err) {
     console.error("Fatal error during seeding:", err);
-    process.exit(1);
+    exitCode = 1;
+  } finally {
+    if (app) {
+      isShuttingDown = true;
+      try {
+        await app.destroy();
+      } catch (destroyErr) {
+        // Knex/tarn may reject pending pool operations during normal shutdown.
+        if (!isTarnAbortError(destroyErr)) {
+          console.error("Fatal error while shutting down Strapi:", destroyErr);
+          exitCode = 1;
+        }
+      }
+    }
+
+    process.off("unhandledRejection", handleUnhandledRejection);
+    process.off("uncaughtException", handleUncaughtException);
+    process.exitCode = exitCode;
   }
 }
 
