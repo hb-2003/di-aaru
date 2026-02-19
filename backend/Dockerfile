@@ -52,11 +52,16 @@ RUN npm ci --omit=dev
 RUN mkdir -p /app/public/uploads \
     && chown -R strapi:strapi /app/public/uploads
 
+# Copy and make executable the startup script
+COPY scripts/start-with-seed.sh /usr/local/bin/
+
+USER root
+RUN chmod +x /usr/local/bin/start-with-seed.sh && \
+    chmod +x /app/scripts/start-with-seed.sh
+
 USER strapi
 
 EXPOSE 1337
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
-  CMD wget -qO- http://localhost:1337/_health || exit 1
-
+ENTRYPOINT ["start-with-seed.sh"]
 CMD ["npm", "run", "start"]

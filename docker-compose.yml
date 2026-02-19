@@ -24,7 +24,7 @@ services:
 
   strapi:
     build:
-      context: .
+      context: ./backend
       dockerfile: ./Dockerfile
       args:
         NODE_ENV: production
@@ -33,7 +33,7 @@ services:
       postgres:
         condition: service_healthy
     env_file:
-      - .env
+      - ./backend/.env
     environment:
       # Allow using a single DATABASE_URL (like Neon) or individual vars
       DATABASE_URL: ${DATABASE_URL}
