@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  strapi:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_SSL: ${DATABASE_SSL}
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
+      CLOUDINARY_KEY: ${CLOUDINARY_KEY}
+      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+    volumes:
+      - strapi_uploads:/app/public/uploads
+    ports:
+      - "1337:1337"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      - strapi
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
+  strapi_uploads:
