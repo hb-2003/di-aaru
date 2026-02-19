@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import './Header.css';
 
-const Header = ({ sections = [] }) => {
+const Header = ({ sections = [], globalSettings = null }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -48,20 +47,31 @@ const Header = ({ sections = [] }) => {
       item && index === self.findIndex(t => t.id === item.id)
     );
 
+  const topBarMessage =
+    globalSettings?.topBarMessage || "Welcome to Di'aaru Luxury Lab-Grown Diamonds";
+  const topBarPhone = globalSettings?.topBarPhone || '+1 (212) 555-DIAM';
+  const topBarEmail = globalSettings?.topBarEmail || 'concierge@diaaru.com';
+  const phoneHref = `tel:${topBarPhone.replace(/[^\d+]/g, '')}`;
+  const emailHref = `mailto:${topBarEmail}`;
+
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="header-top">
         <div className="header-top-container">
           <div className="header-top-left">
-            <span>Welcome to Di'aaru Luxury Lab-Grown Diamonds</span>
+            <span>{topBarMessage}</span>
           </div>
           <div className="header-top-right">
-            <a href="tel:+12125553426" className="top-info-link">
-              <span className="info-icon">📞</span> +1 (212) 555-DIAM
-            </a>
-            <a href="mailto:concierge@diaaru.com" className="top-info-link">
-              <span className="info-icon">✉️</span> concierge@diaaru.com
-            </a>
+            {topBarPhone && (
+              <a href={phoneHref} className="top-info-link">
+                <span className="info-icon">📞</span> {topBarPhone}
+              </a>
+            )}
+            {topBarEmail && (
+              <a href={emailHref} className="top-info-link">
+                <span className="info-icon">✉️</span> {topBarEmail}
+              </a>
+            )}
           </div>
         </div>
       </div>

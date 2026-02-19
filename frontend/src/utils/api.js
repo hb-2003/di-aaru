@@ -69,6 +69,20 @@ export const fetchProducts = async (ids = null) => {
   }
 };
 
+export const fetchGlobalSettings = async () => {
+  try {
+    const response = await api.get('/global', {
+      params: {
+        populate: '*',
+      },
+    });
+    return response.data.data || null;
+  } catch (error) {
+    console.error('Error fetching global settings:', error);
+    return null;
+  }
+};
+
 export const getImageUrl = (imageData) => {
   if (!imageData) return null;
 
