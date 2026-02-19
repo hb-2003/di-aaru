@@ -5,7 +5,12 @@ export default [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['https://6996b42e645df300087d3804--curious-pudding-787d40.netlify.app'],
+      origin: [
+        'https://curious-pudding-787d40.netlify.app',
+        'https://6996b42e645df300087d3804--curious-pudding-787d40.netlify.app',
+        'http://localhost:3000',
+        'http://localhost:5173',
+      ],
     },
   },
   'strapi::poweredBy',

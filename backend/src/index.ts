@@ -1,4 +1,5 @@
 import dns from 'node:dns';
+import type { Core } from '@strapi/strapi';
 
 export default {
   /**
@@ -19,5 +20,17 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap() { },
+  async bootstrap({ strapi }: { strapi: Core.Strapi }) {
+    const shouldSeed =
+      process.env.RUN_SEED === 'true' || process.env.SEED_DATA === 'true';
+
+    if (!shouldSeed) return;
+
+    try {
+      const { seedData } = require('../database/seed-bootstrap');
+      await seedData(strapi);
+    } catch (error) {
+      console.error('Error during bootstrap seeding:', error);
+    }
+  },
 };
