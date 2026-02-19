@@ -1,9 +1,17 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1337/api';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  'https://confident-pleasure-35eb1af3f3.strapiapp.com/api';
+const STRAPI_TOKEN = import.meta.env.VITE_STRAPI_TOKEN;
 
 const api = axios.create({
   baseURL: API_URL,
+  headers: STRAPI_TOKEN
+    ? {
+        Authorization: `Bearer ${STRAPI_TOKEN}`,
+      }
+    : {},
 });
 
 export const fetchPageBySlug = async (slug) => {
