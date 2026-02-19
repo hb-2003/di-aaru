@@ -26,6 +26,15 @@
       "type": "text",
       "required": true
     },
+    "topBarMessage": {
+      "type": "string"
+    },
+    "topBarPhone": {
+      "type": "string"
+    },
+    "topBarEmail": {
+      "type": "email"
+    },
     "defaultSeo": {
       "type": "component",
       "repeatable": false,
