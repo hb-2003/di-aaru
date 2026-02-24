@@ -1,0 +1,639 @@
+/* ═══════════════════════════════════════════════
+   DIAARU ADMIN — OBSIDIAN THEME
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --admin-bg: #121827;
+  /* Deep Charcoal Blue */
+  --admin-bg-raised: #1A2233;
+  /* Slightly lighter charcoal blue */
+  --admin-bg-card: #212B3E;
+  /* Even lighter for card backgrounds */
+  --admin-bg-hover: #2A344C;
+  /* Interactive element hover */
+  --admin-bg-input: #181E2B;
+  /* Input field background */
+  --admin-border: #33415C;
+  /* Muted border color */
+  --admin-border-focus: #5970A0;
+  /* Highlighted border for focus */
+  --admin-sidebar: #0D1320;
+  /* Darker sidebar */
+  --admin-sidebar-hover: #1A2233;
+  /* Sidebar item hover */
+  --admin-gold: #ECC94B;
+  /* Refined, slightly cooler gold/amber accent */
+  --admin-gold-dim: #C2A53F;
+  /* Muted gold */
+  --admin-gold-glow: hsla(45, 90%, 60%, 0.15);
+  /* Subtle glow effect */
+  --admin-text: #E0E6F0;
+  /* Light text for readability */
+  --admin-text-dim: #A0AEC0;
+  /* Muted secondary text */
+  --admin-text-muted: #718096;
+  /* Even more muted text */
+  --admin-success: #6EE7B7;
+  /* Vibrant green */
+  --admin-warning: #FDBA74;
+  /* Soft orange/yellow */
+  --admin-danger: #F87171;
+  /* Clear red */
+  --admin-info: #60A5FA;
+  /* Informative blue */
+
+  /* Typography */
+  --admin-font-display: 'Playfair Display', serif;
+  --admin-font-body: 'Inter', sans-serif;
+}
+
+/* ═══════════════════════════════════════════════
+   LIGHT THEME — "IVORY GOLD"
+   ═══════════════════════════════════════════════ */
+.admin-theme-light {
+  --admin-bg: #F7F5F0;
+  --admin-bg-raised: #FFFFFF;
+  --admin-bg-card: #FFFFFF;
+  --admin-bg-hover: #EDE9E1;
+  --admin-bg-input: #FAFAF8;
+  --admin-border: #D6CFC3;
+  --admin-border-focus: #B8960B;
+  --admin-sidebar: #EFEBE3;
+  --admin-sidebar-hover: #E5DFD5;
+  --admin-gold: #9E7C0A;
+  --admin-gold-dim: #B8960B;
+  --admin-gold-glow: rgba(158, 124, 10, 0.12);
+  --admin-text: #1C1917;
+  --admin-text-dim: #44403C;
+  --admin-text-muted: #78716C;
+  --admin-success: #16A34A;
+  --admin-warning: #CA8A04;
+  --admin-danger: #DC2626;
+  --admin-info: #2563EB;
+}
+
+/* Light theme overrides for elements using hardcoded colors */
+.admin-theme-light .admin-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.admin-theme-light .admin-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.admin-theme-light .admin-btn-primary {
+  color: #FFFFFF;
+}
+
+.admin-theme-light .admin-checkbox:checked::after {
+  border-color: #FFFFFF;
+}
+
+.admin-theme-light .admin-toggle::after {
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.admin-theme-light .admin-toast-item {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.admin-theme-light .admin-noise::before {
+  opacity: 0;
+}
+
+/* Light theme input styling — ensure visible borders */
+.admin-theme-light .admin-input {
+  border-color: #D6CFC3;
+  background: #FAFAF8;
+}
+
+.admin-theme-light .admin-input:focus {
+  background: #FFFFFF;
+  border-color: var(--admin-gold-dim);
+}
+
+.admin-theme-light .admin-input::placeholder {
+  color: #A8A29E;
+}
+
+/* Light theme select arrow fix */
+.admin-theme-light .admin-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  border-color: #D6CFC3;
+}
+
+/* Light theme scrollbar */
+.admin-theme-light .admin-scrollbar::-webkit-scrollbar-thumb {
+  background: #D6CFC3;
+}
+
+.admin-theme-light .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #A8A29E;
+}
+
+.admin-theme-light .badge-published {
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.admin-theme-light .badge-draft {
+  background: rgba(202, 138, 4, 0.1);
+}
+
+.admin-theme-light .badge-active {
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.admin-theme-light .badge-inactive {
+  background: rgba(168, 162, 158, 0.15);
+}
+
+body.admin-body {
+  font-family: var(--admin-font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--admin-font-display);
+}
+
+/* ─── Noise overlay ─── */
+.admin-noise::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* ─── Scrollbar inside admin ─── */
+.admin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 3px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-text-muted);
+}
+
+/* ─── Admin data table ─── */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--admin-text-muted);
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-bg-raised);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--admin-text);
+  border-bottom: 1px solid var(--admin-border);
+  transition: background 0.15s;
+}
+
+.admin-table tbody tr:hover td {
+  background: var(--admin-bg-hover);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─── Admin input ─── */
+.admin-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--admin-text);
+  background: var(--admin-bg-input);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-input:focus {
+  border-color: var(--admin-gold-dim);
+  box-shadow: 0 0 0 3px var(--admin-gold-glow);
+}
+
+.admin-input::placeholder {
+  color: var(--admin-text-muted);
+}
+
+.admin-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Admin select ─── */
+.admin-select {
+  appearance: none;
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  font-size: 13px;
+  color: var(--admin-text);
+  background: var(--admin-bg-input) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23555a6e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.admin-select:focus {
+  border-color: var(--admin-gold-dim);
+  box-shadow: 0 0 0 3px var(--admin-gold-glow);
+}
+
+/* ─── Admin button system ─── */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.admin-btn-primary {
+  background: var(--admin-gold);
+  color: #0b0d13;
+  border-color: var(--admin-gold);
+}
+
+.admin-btn-primary:hover {
+  background: var(--admin-gold-dim);
+  border-color: var(--admin-gold-dim);
+}
+
+.admin-btn-secondary {
+  background: var(--admin-bg-hover);
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+}
+
+.admin-btn-secondary:hover {
+  background: var(--admin-border);
+}
+
+.admin-btn-ghost {
+  background: transparent;
+  color: var(--admin-text-dim);
+}
+
+.admin-btn-ghost:hover {
+  background: var(--admin-bg-hover);
+  color: var(--admin-text);
+}
+
+.admin-btn-danger {
+  background: transparent;
+  color: var(--admin-danger);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+
+.admin-btn-danger:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.admin-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─── Status badges ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 100px;
+}
+
+.badge-published {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--admin-success);
+}
+
+.badge-draft {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--admin-warning);
+}
+
+.badge-active {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--admin-success);
+}
+
+.badge-inactive {
+  background: rgba(85, 90, 110, 0.2);
+  color: var(--admin-text-muted);
+}
+
+/* ─── Admin card ─── */
+.admin-card {
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+  /* Added transition for smooth effects */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  /* Subtle initial shadow */
+}
+
+.admin-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  /* Enhanced shadow on hover */
+}
+
+.admin-card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-card-body {
+  padding: 24px;
+}
+
+/* ─── Toggle switch ─── */
+.admin-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--admin-bg-hover);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-toggle.active {
+  background: var(--admin-gold);
+  border-color: var(--admin-gold);
+}
+
+.admin-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.admin-toggle.active::after {
+  transform: translateX(18px);
+}
+
+/* ─── Checkbox ─── */
+.admin-checkbox {
+  width: 16px;
+  height: 16px;
+  appearance: none;
+  background: var(--admin-bg-input);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.admin-checkbox:checked {
+  background: var(--admin-gold);
+  border-color: var(--admin-gold);
+}
+
+.admin-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid #0b0d13;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ─── Transitions ─── */
+.admin-fade-in {
+  animation: adminFadeIn 0.3s ease-out;
+}
+
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-slide-in {
+  animation: adminSlideIn 0.25s ease-out;
+}
+
+@keyframes adminSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ─── Modal overlay ─── */
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn 0.2s ease-out;
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.admin-modal {
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  max-width: 640px;
+  width: 95%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: modalIn 0.25s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ─── Skeleton loading ─── */
+.admin-skeleton {
+  background: linear-gradient(90deg, var(--admin-bg-hover) 25%, var(--admin-border) 50%, var(--admin-bg-hover) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ─── Toast ─── */
+.admin-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-toast-item {
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text);
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: toastIn 0.3s ease-out;
+  min-width: 280px;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── Drag handle ─── */
+.admin-drag-handle {
+  cursor: grab;
+  color: var(--admin-text-muted);
+  transition: color 0.15s;
+}
+
+.admin-drag-handle:hover {
+  color: var(--admin-text);
+}
+
+.admin-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ─── Empty state ─── */
+.admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+}
+
+.admin-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--admin-bg-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--admin-text-muted);
+}
