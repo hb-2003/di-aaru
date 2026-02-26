@@ -156,10 +156,25 @@ html {
 
 /* ─── Glassmorphism ─── */
 .glass {
-  background: rgba(10, 10, 10, 0.6);
-  backdrop-filter: blur(24px) saturate(1.2);
-  -webkit-backdrop-filter: blur(24px) saturate(1.2);
-  border-bottom: 1px solid rgba(200, 169, 110, 0.08);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ─── Frosted Glass Card ─── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 8px 32px rgba(200, 169, 110, 0.12), 0 0 0 1px rgba(212, 175, 55, 0.15);
 }
 
 /* ─── Nav Link Hover Underline ─── */
@@ -229,3 +244,44 @@ html {
 .sparkle-3 { animation-delay: 1.6s; animation-duration: 2.8s; }
 .sparkle-4 { animation-delay: 0.4s; animation-duration: 3.5s; }
 .sparkle-5 { animation-delay: 2s; animation-duration: 2.2s; }
+
+/* ─── Mobile Landscape ─── */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 100svh;
+    height: auto;
+    padding-top: 70px;
+    padding-bottom: 40px;
+  }
+
+  .hero-content {
+    justify-content: flex-start;
+    padding-top: 20px;
+    padding-bottom: 16px;
+    gap: 10px;
+  }
+
+  .hero-headline {
+    font-size: 1.8rem;
+    line-height: 2.2rem;
+  }
+
+  .hero-subtext {
+    font-size: 0.85rem;
+    margin-top: 8px;
+  }
+
+  .hero-cta {
+    margin-top: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .hero-eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .hero-scroll-indicator {
+    display: none;
+  }
+}

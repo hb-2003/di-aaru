@@ -98,7 +98,7 @@ export default function Navbar() {
               key={link.label}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className="text-sm font-light tracking-[0.12em] uppercase text-warm-gray transition-all duration-300 hover:text-foreground hover:translate-x-2"
+              className="glass-card px-5 py-3 text-sm font-light tracking-[0.12em] uppercase text-warm-gray transition-all duration-300 hover:text-foreground"
               style={{ animationDelay: `${i * 60}ms` }}
             >
               {link.label}

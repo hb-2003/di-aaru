@@ -1,97 +1,61 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-/* ── Spectral Fire Shader ──
-   Luminance-masked chromatic dispersion that simulates wavelength-
-   dependent refraction (fire). 8 spectral samples from red → violet
-   are radially offset in screen-space; the effect is gated behind a
-   brightness threshold so only refracted highlights get the rainbow
-   treatment — dark areas stay clean. ── */
-const SpectralFireShader = {
-  uniforms: {
-    tDiffuse: { value: null as THREE.Texture | null },
-    uStrength: { value: 0.006 },
-  },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse;
-    uniform float uStrength;
-    varying vec2 vUv;
-
-    // Attempt to create a smooth visible spectrum: t=0 red → t=1 violet
-    vec3 spectralWeight(float t) {
-      float r = smoothstep(0.45, 0.0, t) + smoothstep(0.85, 1.0, t) * 0.4;
-      float g = smoothstep(0.0, 0.35, t) * smoothstep(0.7, 0.35, t);
-      float b = smoothstep(0.5, 0.85, t);
-      return vec3(r, g, b);
-    }
-
-    void main() {
-      vec2 center = vec2(0.5);
-      vec2 dir = vUv - center;
-      float dist = length(dir);
-
-      vec4 base = texture2D(tDiffuse, vUv);
-      float luma = dot(base.rgb, vec3(0.2126, 0.7152, 0.0722));
-
-      // Fire mask — disperse bright refracted highlights
-      float mask = smoothstep(0.25, 0.75, luma);
-
-      if (mask < 0.01) {
-        gl_FragColor = base;
-        return;
-      }
-
-      // 8-sample spectral walk from red to violet
-      const int N = 8;
-      vec3 result = vec3(0.0);
-      vec3 wSum   = vec3(0.0);
-
-      for (int i = 0; i < N; i++) {
-        float t = float(i) / float(N - 1);       // 0 → 1
-        float offs = (t - 0.5) * 2.0;             // -1 → +1
-        vec2 uv = vUv + dir * offs * uStrength;
-        vec3 w  = spectralWeight(t);
-        result += texture2D(tDiffuse, uv).rgb * w;
-        wSum   += w;
-      }
-
-      result /= wSum;
-
-      gl_FragColor = vec4(mix(base.rgb, result, mask), 1.0);
-    }
-  `,
-};
+export interface DiamondHandle {
+  getGroup: () => THREE.Group;
+}
 
 /* ── Sparkle texture ── */
 function createSparkleTexture(): THREE.CanvasTexture {
   const c = document.createElement("canvas");
-  c.width = 32;
-  c.height = 32;
+  c.width = 64;
+  c.height = 64;
   const ctx = c.getContext("2d")!;
-  const g = ctx.createRadialGradient(16, 16, 16 * 0.18, 16, 16, 16);
-  g.addColorStop(0.0, "rgba(255,255,255,0.18)");
-  g.addColorStop(0.15, "rgba(220,235,255,0.14)");
-  g.addColorStop(0.3, "rgba(200,220,255,0.09)");
-  g.addColorStop(0.5, "rgba(180,210,255,0.05)");
-  g.addColorStop(0.75, "rgba(255,255,255,0.02)");
-  g.addColorStop(1.0, "rgba(255,255,255,0)");
+  const cx = 32;
+  const cy = 32;
+
+  // Center soft glow
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 32);
+  g.addColorStop(0, "rgba(255, 255, 255, 0.8)");
+  g.addColorStop(0.2, "rgba(255, 245, 220, 0.3)");
+  g.addColorStop(0.5, "rgba(255, 255, 255, 0)");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 32, 32);
+  ctx.fillRect(0, 0, 64, 64);
+
+  // Sharp glint lines (cross)
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.lineWidth = 1;
+
+  // Horizontal
+  ctx.beginPath();
+  ctx.moveTo(cx - 24, cy);
+  ctx.lineTo(cx + 24, cy);
+  ctx.stroke();
+
+  // Vertical
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 24);
+  ctx.lineTo(cx, cy + 24);
+  ctx.stroke();
+
+  // Diagonal (shorter)
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.beginPath();
+  ctx.moveTo(cx - 12, cy - 12);
+  ctx.lineTo(cx + 12, cy + 12);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 12, cy - 12);
+  ctx.lineTo(cx - 12, cy + 12);
+  ctx.stroke();
+
   return new THREE.CanvasTexture(c);
 }
 
@@ -102,8 +66,8 @@ function createSparkleTexture(): THREE.CanvasTexture {
    PMREMGenerator converts this into a cubemap env-map that drives
    both reflections and transmitted refraction inside the diamond. ── */
 function createDiamondStudioHDRI(
-  width = 512,
-  height = 256,
+  width = 1024,
+  height = 512,
 ): THREE.DataTexture {
   const data = new Float32Array(width * height * 4);
 
@@ -113,12 +77,9 @@ function createDiamondStudioHDRI(
   };
 
   const softRect = (
-    u: number,
-    v: number,
-    uMin: number,
-    uMax: number,
-    vMin: number,
-    vMax: number,
+    u: number, v: number,
+    uMin: number, uMax: number,
+    vMin: number, vMax: number,
     soft: number,
   ) =>
     smoothstep(uMin - soft, uMin + soft, u) *
@@ -126,57 +87,108 @@ function createDiamondStudioHDRI(
     smoothstep(vMin - soft, vMin + soft, v) *
     smoothstep(vMax + soft, vMax - soft, v);
 
+  // Sharp circular hotspot
+  const hotspot = (u: number, v: number, cu: number, cv: number, radius: number, soft: number) => {
+    const du = Math.min(Math.abs(u - cu), 1 - Math.abs(u - cu)); // wrap in U
+    const dv = v - cv;
+    const dist = Math.sqrt(du * du + dv * dv);
+    return smoothstep(radius + soft, radius - soft, dist);
+  };
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
       const u = x / width;
       const v = y / height;
 
-      // Dark base (jewelry dark-field)
-      let r = 0.004,
-        g = 0.004,
-        b = 0.006;
+      // ── Very dark base — jewelry dark-field look ──
+      let r = 0.001, g = 0.001, b = 0.002;
 
-      // 1 — Overhead softbox (moderate width, bright)
-      const overhead = softRect(u, v, 0.35, 0.65, 0.02, 0.1, 0.025);
-      r += overhead * 5.5;
-      g += overhead * 5.3;
-      b += overhead * 5.8;
+      // ── 1. Dominant overhead softbox (v=0 is top) ──
+      // Large, very bright, slightly cool white
+      const top = softRect(u, v, 0.1, 0.9, 0.0, 0.15, 0.08);
+      r += top * 12.0;
+      g += top * 12.0;
+      b += top * 14.0;
 
-      // 2 — Left accent strip (cool blue-white)
-      const leftAccent = softRect(u, v, 0.68, 0.78, 0.2, 0.38, 0.015);
-      r += leftAccent * 1.5;
-      g += leftAccent * 1.8;
-      b += leftAccent * 3.0;
+      // ── 2. Tight overhead hotspot — primary specular source ──
+      const topHot = hotspot(u, v, 0.5, 0.05, 0.06, 0.02);
+      r += topHot * 18.0;
+      g += topHot * 18.0;
+      b += topHot * 20.0;
 
-      // 3 — Right accent strip (warm amber)
-      const rightAccent = softRect(u, v, 0.22, 0.32, 0.2, 0.38, 0.015);
-      r += rightAccent * 3.0;
-      g += rightAccent * 2.0;
-      b += rightAccent * 1.0;
+      // ── 3. Back rim lights — strong, narrow, blue-white ──
+      // These wrap around the back creating the "halo" inside the diamond
+      const rimL = softRect(u, v, 0.0, 0.05, 0.1, 0.9, 0.03);
+      const rimR = softRect(u, v, 0.95, 1.0, 0.1, 0.9, 0.03);
+      r += (rimL + rimR) * 10.0;
+      g += (rimL + rimR) * 10.0;
+      b += (rimL + rimR) * 13.0;
 
-      // 4 — Back rim highlight (creates edge sparkle)
-      const rim = softRect(u, v, 0.44, 0.56, 0.12, 0.18, 0.01);
-      r += rim * 4.0;
-      g += rim * 4.0;
-      b += rim * 4.5;
+      // ── 4. Side accent panels — warm vs cool for chromatic contrast ──
+      // Left: warm golden
+      const sideWarm = softRect(u, v, 0.68, 0.82, 0.2, 0.75, 0.06);
+      r += sideWarm * 8.0;
+      g += sideWarm * 6.0;
+      b += sideWarm * 2.0;
 
-      // 5 — Fire spots (small, concentrated, colored)
-      const fireL = softRect(u, v, 0.14, 0.19, 0.3, 0.36, 0.008);
-      r += fireL * 3.5;
-      g += fireL * 1.2;
-      b += fireL * 0.5;
+      // Right: cool blue
+      const sideCool = softRect(u, v, 0.18, 0.32, 0.2, 0.75, 0.06);
+      r += sideCool * 2.0;
+      g += sideCool * 5.0;
+      b += sideCool * 10.0;
 
-      const fireR = softRect(u, v, 0.81, 0.86, 0.3, 0.36, 0.008);
-      r += fireR * 0.5;
-      g += fireR * 1.5;
-      b += fireR * 4.0;
+      // ── 5. Chromatic fire panels — pure R, G, B for dispersion ──
+      // These are what give diamonds their "fire" (spectral colors)
+      const fireR = hotspot(u, v, 0.15, 0.38, 0.025, 0.008);
+      r += fireR * 10.0;
 
-      // 6 — Bottom fill (prevents pure-black underside)
-      const bottomFill = softRect(u, v, 0.15, 0.85, 0.85, 0.95, 0.04);
-      r += bottomFill * 0.15;
-      g += bottomFill * 0.15;
-      b += bottomFill * 0.18;
+      const fireG = hotspot(u, v, 0.35, 0.55, 0.02, 0.008);
+      g += fireG * 8.0;
+
+      const fireB1 = hotspot(u, v, 0.62, 0.42, 0.02, 0.008);
+      b += fireB1 * 20.0;
+
+      const fireB2 = hotspot(u, v, 0.82, 0.35, 0.025, 0.008);
+      b += fireB2 * 16.0;
+      r += fireB2 * 4.0; // slight violet
+
+      const fireO = hotspot(u, v, 0.25, 0.48, 0.018, 0.006); // orange
+      r += fireO * 14.0;
+      g += fireO * 6.0;
+
+      const firePurple = hotspot(u, v, 0.72, 0.52, 0.018, 0.006);
+      r += firePurple * 10.0;
+      b += firePurple * 14.0;
+
+      // ── 6. Ultra-sharp sparkle points — tiny but EXTREMELY bright ──
+      // These cause the "glint" flashes as diamond rotates
+      const sparkle = (cu: number, cv: number, intensity: number) => {
+        const h = hotspot(u, v, cu, cv, 0.008, 0.003);
+        r += h * intensity;
+        g += h * intensity;
+        b += h * intensity * 1.1;
+      };
+      sparkle(0.48, 0.28, 30.0);
+      sparkle(0.51, 0.35, 22.0);
+      sparkle(0.38, 0.22, 18.0);
+      sparkle(0.63, 0.31, 20.0);
+      sparkle(0.44, 0.45, 16.0);
+      sparkle(0.56, 0.19, 25.0);
+      sparkle(0.29, 0.38, 15.0);
+      sparkle(0.71, 0.42, 18.0);
+
+      // ── 7. Equator fill band — keeps pavilion facets visible ──
+      const equator = softRect(u, v, 0.0, 1.0, 0.42, 0.58, 0.06);
+      r += equator * 0.4;
+      g += equator * 0.4;
+      b += equator * 0.5;
+
+      // ── 8. Ground bounce — very subtle warm floor reflection ──
+      const floor = softRect(u, v, 0.15, 0.85, 0.88, 1.0, 0.06);
+      r += floor * 0.6;
+      g += floor * 0.5;
+      b += floor * 0.3;
 
       data[i] = r;
       data[i + 1] = g;
@@ -186,9 +198,7 @@ function createDiamondStudioHDRI(
   }
 
   const tex = new THREE.DataTexture(
-    data,
-    width,
-    height,
+    data, width, height,
     THREE.RGBAFormat,
     THREE.FloatType,
   );
@@ -318,8 +328,13 @@ function createBrilliantCut58(scale: number = 1.5): THREE.BufferGeometry {
 /* ══════════════════════════════════════════
    Main Scene Component
    ══════════════════════════════════════════ */
-export default function DiamondScene() {
+const DiamondScene = forwardRef<DiamondHandle, {}>((props, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const animationGroupRef = useRef<THREE.Group>(new THREE.Group());
+
+  useImperativeHandle(ref, () => ({
+    getGroup: () => animationGroupRef.current,
+  }));
 
   useEffect(() => {
     const container = containerRef.current;
@@ -330,33 +345,59 @@ export default function DiamondScene() {
 
     /* ── Scene ── */
     const scene = new THREE.Scene();
-
-    const bgCanvas = document.createElement("canvas");
-    bgCanvas.width = 2;
-    bgCanvas.height = 512;
-    const bgCtx = bgCanvas.getContext("2d")!;
-    const bgGrad = bgCtx.createLinearGradient(0, 0, 0, 512);
-    bgGrad.addColorStop(0, "#0c0c12");
-    bgGrad.addColorStop(0.35, "#0a0a0e");
-    bgGrad.addColorStop(0.7, "#08080c");
-    bgGrad.addColorStop(1, "#050508");
-    bgCtx.fillStyle = bgGrad;
-    bgCtx.fillRect(0, 0, 2, 512);
-    scene.background = new THREE.CanvasTexture(bgCanvas);
+    // Background is transparent to blend with CSS background
+    scene.background = null;
 
     /* ── Camera ── */
-    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(30, w / h, 0.1, 100);
     camera.position.set(0, 0.8, 6);
+
+    /* ── Responsive breakpoints ── */
+    let baseScale = 1;
+    let baseY = 0;
+
+    function applyResponsive() {
+      const isLandscapeMobile = w < 768 && h < 450;
+
+      if (isLandscapeMobile) {
+        camera.fov = 48;
+        camera.position.z = 5.2;
+        baseScale = 0.6;
+        baseY = -0.05;
+      } else if (w < 768) {
+        // Mobile (matches (max-width: 767px))
+        camera.fov = 42;
+        camera.position.z = 4.8;
+        baseScale = 0.7;
+        baseY = -0.16;
+      } else if (w < 1024) {
+        // Tablet (matches (min-width: 768px) and (max-width: 1023px))
+        camera.fov = 36;
+        camera.position.z = 6;
+        baseScale = 0.85;
+        baseY = 0.1;
+      } else {
+        // Desktop (matches (min-width: 1024px))
+        camera.fov = 30;
+        camera.position.z = 6;
+        baseScale = 1;
+        baseY = 0;
+      }
+      camera.updateProjectionMatrix();
+    }
+    applyResponsive();
 
     /* ── Renderer ── */
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
+      alpha: true, // Allow transparency
       powerPreference: "high-performance",
     });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.8;
+    renderer.setClearColor(0x000000, 0); // Transparent base
+    renderer.toneMapping = THREE.AgXToneMapping; // More cinematic tone mapping
+    renderer.toneMappingExposure = 1.0;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -370,43 +411,55 @@ export default function DiamondScene() {
       pmremGenerator.fromEquirectangular(studioHDRI).texture;
     studioHDRI.dispose();
     scene.environment = envTexture;
+    scene.environmentIntensity = 0.02; // Deeper shadows for Noir aesthetic
 
-    /* ── Single accent sparkle light (very subtle) ── */
-    const accentLight = new THREE.PointLight(0xffeedd, 3, 20);
-    accentLight.position.set(2, 4, 4);
-    scene.add(accentLight);
+    /* ── Studio Lighting Rig (Focused on Facets) ── */
+    // Main sharp glint source
+    const topLight = new THREE.DirectionalLight(0xffffff, 5.0);
+    topLight.position.set(5, 15, 10);
+    scene.add(topLight);
+
+    // Rim light to define the sharp edges (cuts)
+    const backLight = new THREE.DirectionalLight(0xffffff, 8);
+    backLight.position.set(-10, 5, -15);
+    scene.add(backLight);
+
+    // Sharp pinpoint light that follows the mouse to catch facet edges
+    const mouseLight = new THREE.PointLight(0xffffff, 0, 20);
+    scene.add(mouseLight);
 
     /* ── Brilliant-Cut Diamond ── */
-    const diamondGroup = new THREE.Group();
+    const diamondGroup = animationGroupRef.current;
     scene.add(diamondGroup);
+
+    const innerDiamondGroup = new THREE.Group();
+    diamondGroup.add(innerDiamondGroup);
 
     const diamondGeometry = createBrilliantCut58(1.5);
 
     const diamondMaterial = new THREE.MeshPhysicalMaterial({
-      transmission: 0.92,
-      roughness: 0,
+      transmission: 1.0,
+      thickness: 1.5,
+      roughness: 0.0,
       metalness: 0,
-      thickness: 1.8,
       ior: 2.417,
-      reflectivity: 0.8,
-      clearcoat: 0.5,
-      clearcoatRoughness: 0,
-      envMapIntensity: 1.0,
+      dispersion: 25.0, // Dramatically increased fire for the luxury feel
+      reflectivity: 1.0,
       transparent: true,
-      opacity: 1,
+      opacity: 0,
       color: new THREE.Color(0xffffff),
       side: THREE.DoubleSide,
-      specularIntensity: 0.8,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.0,
+      envMapIntensity: 2.0, // High environment pop
+      specularIntensity: 5.0, // Sharpest highlights
       specularColor: new THREE.Color(0xffffff),
-      attenuationDistance: 0.4,
-      attenuationColor: new THREE.Color(0xe8eeff),
-      dispersion: 0.3,
     });
 
     const diamondMesh = new THREE.Mesh(diamondGeometry, diamondMaterial);
     diamondMesh.castShadow = true;
     diamondMesh.receiveShadow = true;
-    diamondGroup.add(diamondMesh);
+    innerDiamondGroup.add(diamondMesh);
 
     /* ── Sparkle Particles ── */
     const SPARK_COUNT = 80;
@@ -459,28 +512,27 @@ export default function DiamondScene() {
 
     /* ── Raycaster ── */
     const raycaster = new THREE.Raycaster();
-    const mouseNDC = new THREE.Vector2(0, 0);
+    const mouseNDC = new THREE.Vector2(-10, -10); // Start off-screen
 
     function onPointerMove(e: PointerEvent) {
+      // Use window coordinates since the container might have pointer-events-none
       const rect = container!.getBoundingClientRect();
       mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     }
-    container.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointermove", onPointerMove);
 
     /* ── OrbitControls ── */
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableZoom = false;
     controls.enablePan = false;
+    // Disable rotate if it interferes with scrollytelling, or keep for subtle interaction
     controls.enableRotate = true;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.4;
+    controls.autoRotateSpeed = 0.5;
     controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
-    controls.rotateSpeed = 0.5;
-    controls.minPolarAngle = Math.PI * 0.15;
-    controls.maxPolarAngle = Math.PI * 0.85;
-    controls.target.set(0, -0.2, 0);
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 0, 0);
 
     /* ── Post Processing ── */
     const composer = new EffectComposer(renderer);
@@ -488,22 +540,20 @@ export default function DiamondScene() {
 
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(w, h),
-      0.2,
-      0.3,
-      0.88,
+      0.8,  // Higher strength for luxury glints
+      0.96, // Extremely tight threshold for only the sharpest glints
+      0.4   // Smaller radius for crisp rays
     );
     composer.addPass(bloomPass);
-
-    const firePass = new ShaderPass(SpectralFireShader);
-    composer.addPass(firePass);
 
     composer.addPass(new OutputPass());
 
     /* ── Animation ── */
-    let prevTime = 0;
+    let startTime = performance.now() * 0.001;
+    let prevTime = startTime;
     let frameId = 0;
 
-    diamondGroup.scale.setScalar(0.4);
+    innerDiamondGroup.scale.setScalar(0);
     diamondMaterial.opacity = 0;
 
     function animate() {
@@ -511,53 +561,63 @@ export default function DiamondScene() {
 
       const now = performance.now() * 0.001;
       const delta = Math.min(now - prevTime, 0.05);
+      const elapsed = now - startTime;
       prevTime = now;
 
-      const entranceT = Math.min(now / 2.5, 1);
-      const ease = 1 - Math.pow(1 - entranceT, 4);
+      // Entrance animation (start after a short delay to sync with loader exit)
+      const entranceDelay = 0.8;
+      const entranceDuration = 2.5;
+      const entranceT = Math.max(0, Math.min((elapsed - entranceDelay) / entranceDuration, 1));
+      const ease = 1 - Math.pow(1 - entranceT, 5); // Quintic ease out for even smoother entry
 
-      if (entranceT < 1) {
-        diamondGroup.scale.setScalar(0.4 + ease * 0.6);
+      if (entranceT > 0 && entranceT <= 1) {
+        innerDiamondGroup.scale.setScalar(baseScale * (0.1 + ease * 0.9));
         diamondMaterial.opacity = ease;
+      } else if (entranceT > 1) {
+        // More subtle idle float/pulse
+        const pulse = baseScale * (1 + Math.sin(now * 0.6) * 0.01);
+        innerDiamondGroup.scale.setScalar(pulse);
+        diamondMaterial.opacity = 1;
       }
 
-      diamondGroup.position.y = Math.sin(now * 0.6) * 0.1;
+      // Deeper idle floating
+      innerDiamondGroup.position.y = baseY + Math.sin(now * 0.4) * 0.1;
 
-      if (entranceT >= 1) {
-        const pulse = 1 + Math.sin(now * 1.0) * 0.01;
-        diamondGroup.scale.setScalar(pulse);
-      }
+      // Mouse light interaction
+      const targetPos = new THREE.Vector3(mouseNDC.x * 5, mouseNDC.y * 5, 4);
+      mouseLight.position.lerp(targetPos, 0.08);
 
+      // Spark interaction
       raycaster.setFromCamera(mouseNDC, camera);
       const hits = raycaster.intersectObject(diamondMesh);
-      if (hits.length > 0 && Math.random() > 0.65) {
-        emitSparks(hits[0].point, 2);
+      if (hits.length > 0) {
+        mouseLight.intensity = 50 + Math.sin(now * 12) * 20;
+        if (Math.random() > 0.7) emitSparks(hits[0].point, 1);
+      } else {
+        mouseLight.intensity = 1 + Math.sin(now * 1.5) * 1.0;
       }
 
-      const posAttr = sparkGeom.getAttribute(
-        "position",
-      ) as THREE.BufferAttribute;
+      // Update particles
+      const posAttr = sparkGeom.getAttribute("position") as THREE.BufferAttribute;
       for (let i = 0; i < SPARK_COUNT; i++) {
         if (sparkLife[i] > 0) {
-          sparkLife[i] -= delta * 0.7;
+          sparkLife[i] -= delta * 0.8;
           sparkPos[i * 3] += sparkVel[i].x;
           sparkPos[i * 3 + 1] += sparkVel[i].y;
           sparkPos[i * 3 + 2] += sparkVel[i].z;
-          sparkVel[i].multiplyScalar(0.98);
+          sparkVel[i].multiplyScalar(0.97);
         } else {
-          sparkPos[i * 3 + 1] = -50;
+          sparkPos[i * 3 + 1] = -100; // Far away
         }
       }
       posAttr.needsUpdate = true;
-
-      /* Subtle HDRI accent pulse */
-      accentLight.intensity = 3 + Math.sin(now * 0.4) * 0.8;
 
       controls.update();
       composer.render();
     }
 
-    prevTime = performance.now() * 0.001;
+    startTime = performance.now() * 0.001;
+    prevTime = startTime;
     animate();
 
     /* ── Resize ── */
@@ -565,7 +625,7 @@ export default function DiamondScene() {
       w = container!.clientWidth;
       h = container!.clientHeight;
       camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+      applyResponsive();
       renderer.setSize(w, h);
       composer.setSize(w, h);
       bloomPass.resolution.set(w, h);
@@ -576,7 +636,7 @@ export default function DiamondScene() {
     return () => {
       cancelAnimationFrame(frameId);
       window.removeEventListener("resize", onResize);
-      container.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointermove", onPointerMove);
       controls.dispose();
       renderer.dispose();
       composer.dispose();
@@ -599,4 +659,6 @@ export default function DiamondScene() {
       className="absolute inset-0 cursor-grab active:cursor-grabbing"
     />
   );
-}
+});
+
+export default DiamondScene;
