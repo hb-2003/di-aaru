@@ -1,0 +1,702 @@
+.section {
+  --gold: #c9a96e;
+  --gold-light: #e8e0d0;
+  --gold-muted: rgba(201, 169, 110, 0.45);
+  --gold-border: rgba(255, 255, 255, 0.08);
+  --gold-glow: rgba(201, 169, 110, 0.12);
+  --bg-primary: #1a1a18;
+  --bg-card: rgba(255,255,255,0.01);
+  --bg-card-hover: rgba(255,255,255,0.02);
+
+  background: var(--bg-primary);
+  padding: 120px 0 0; /* Adjusted padding-top */
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 0;
+  }
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 80px;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+/* PROCESS TIMELINE */
+.processTimeline {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 0.5px solid rgba(196, 168, 105, 0.1);
+  align-items: flex-start;
+}
+
+.timelineItem:last-child {
+  border-bottom: none;
+}
+
+.timelineNum {
+  font-family: var(--font-cormorant);
+  font-size: 28px;
+  font-weight: 300;
+  color: rgba(196, 168, 105, 0.25);
+  line-height: 1;
+  min-width: 36px;
+}
+
+.timelineLabel {
+  display: block;
+  font-size: 7px;
+  font-family: var(--font-montserrat);
+  letter-spacing: 0.3em;
+  color: rgba(196, 168, 105, 0.55);
+  margin-bottom: 5px;
+}
+
+.timelineText {
+  display: block;
+  font-size: 12px;
+  font-family: var(--font-montserrat);
+  font-weight: 300;
+  color: rgba(240, 232, 208, 0.45);
+  line-height: 1.7;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 40px;
+    gap: 40px;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 24px;
+    grid-template-columns: 1fr;
+  }
+
+  .rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .perfectionGrid {
+    display: none;
+  }
+}
+
+/* LEFT COLUMN */
+.leftColumn {
+  position: relative;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.labelLine {
+  width: 40px;
+  height: 0.5px;
+  background: var(--gold-muted);
+}
+
+.labelText {
+  font-family: var(--font-montserrat);
+  font-size: 7.5px;
+  font-weight: 400;
+  letter-spacing: 0.38em;
+  color: var(--gold-muted);
+  text-transform: uppercase;
+}
+
+.heading {
+  margin-top: 18px;
+  line-height: 1.1;
+}
+
+.headingWhite,
+.headingGold {
+  display: block;
+  font-family: var(--font-cormorant);
+  font-size: 58px;
+  font-weight: 300;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.headingWhite {
+  color: var(--gold-light);
+}
+
+.headingGold {
+  color: var(--gold);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .headingWhite, .headingGold {
+    font-size: 44px;
+  }
+}
+
+.visible .headingWhite,
+.visible .headingGold {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.bodyText {
+  font-family: var(--font-montserrat);
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(240, 232, 208, 0.55);
+  line-height: 1.95;
+  margin-top: 28px;
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.visible .bodyText {
+  opacity: 1;
+}
+
+.inscriptionWrap {
+  margin-top: 32px;
+}
+
+.inscriptionLabel {
+  display: block;
+  font-family: var(--font-montserrat);
+  font-size: 7px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: var(--gold-muted);
+  margin-bottom: 8px;
+}
+
+.inscriptionBox {
+  background: rgba(196, 168, 105, 0.05);
+  border: 0.5px solid rgba(196, 168, 105, 0.25);
+  padding: 12px 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .inscriptionBox {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.inscriptionCode {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .inscriptionCode {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+}
+
+.inscriptionGlow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(196, 168, 105, 0.08) 50%, transparent 100%);
+  animation: scanLine 3s ease-in-out infinite;
+}
+
+@keyframes scanLine {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.inscriptionNote {
+  display: block;
+  font-family: var(--font-montserrat);
+  font-size: 8px;
+  color: rgba(196, 168, 105, 0.35);
+  margin-top: 8px;
+}
+
+.leftCta {
+  margin-top: 48px;
+  padding: 24px;
+  background: rgba(196, 168, 105, 0.03);
+  border: 0.5px solid rgba(196, 168, 105, 0.1);
+}
+
+.ctaText {
+  font-family: var(--font-montserrat);
+  font-size: 11px;
+  color: rgba(240, 232, 208, 0.4);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.ctaButton {
+  background: none;
+  border: 0.5px solid var(--gold-muted);
+  color: var(--gold);
+  padding: 12px 24px;
+  font-family: var(--font-montserrat);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.ctaButton:hover {
+  background: var(--gold);
+  color: var(--bg-primary);
+  border-color: var(--gold);
+}
+
+.featureList {
+  margin-top: 40px;
+}
+
+.featureItem {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid rgba(196, 168, 105, 0.1);
+  cursor: pointer;
+}
+
+.featureDot {
+  width: 5px;
+  height: 5px;
+  background: var(--gold);
+  border-radius: 50%;
+  opacity: 0.6;
+  margin-top: 6px;
+  flex-shrink: 0;
+  transition: opacity 0.4s ease, box-shadow 0.4s ease;
+}
+
+.featureItem:hover .featureDot {
+  opacity: 1;
+  box-shadow: 0 0 6px var(--gold);
+}
+
+.featureContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.featureLabel {
+  font-family: var(--font-montserrat);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: var(--gold-light);
+  display: block;
+}
+
+.featureDetail {
+  font-family: var(--font-montserrat);
+  font-size: 11.5px;
+  font-weight: 300;
+  color: rgba(240, 232, 208, 0.45);
+  display: block;
+  margin-top: 4px;
+  line-height: 1.6;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+}
+
+.featureItem:hover .featureDetail {
+  max-height: 40px;
+  opacity: 1;
+}
+
+/* RIGHT COLUMN */
+.rightColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px;
+}
+
+@media (max-width: 768px) {
+  .rightColumn {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.certCard {
+  background: var(--bg-card);
+  border: 0.5px solid rgba(196, 168, 105, 0.22);
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.4s ease, border-color 0.4s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.cardVisible {
+  animation: cardReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.certCard:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(196, 168, 105, 0.35);
+}
+
+.certCardGIA {
+  min-height: 280px;
+}
+
+.certCardIGI {
+  min-height: 260px;
+}
+
+.certCardFull {
+  grid-column: 1 / -1;
+}
+
+.scsLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .scsLayout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.scsRight {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 8px;
+  border-left: 0.5px solid rgba(196, 168, 105, 0.15);
+  padding-left: 40px;
+}
+
+@media (max-width: 768px) {
+  .scsRight {
+    border-left: none;
+    border-top: 0.5px solid rgba(196, 168, 105, 0.15);
+    padding-left: 0;
+    padding-top: 24px;
+  }
+}
+
+.scsDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardLabel {
+  display: block;
+  font-family: var(--font-montserrat);
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  color: var(--gold-muted);
+  text-transform: uppercase;
+}
+
+.cardValue {
+  font-family: var(--font-cormorant);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--gold-light);
+}
+
+.stampWrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+}
+
+.stamp {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stampRing {
+  position: absolute;
+  inset: 0;
+  animation: stampRotate 20s linear infinite;
+}
+
+@keyframes stampRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.stampText {
+  font-family: var(--font-cormorant);
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--gold-light);
+  z-index: 1;
+}
+
+.stampPrimary {
+  font-size: 17px;
+  color: var(--gold);
+}
+
+.stampBadge {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-montserrat);
+  font-size: 6px;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  background: rgba(196, 168, 105, 0.1);
+  border: 0.5px solid rgba(196, 168, 105, 0.25);
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.certContent {
+  position: relative;
+  z-index: 1;
+}
+
+.certName {
+  font-family: var(--font-cormorant);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+}
+
+.certFullName {
+  font-family: var(--font-montserrat);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--gold-muted);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.certDescription {
+  font-family: var(--font-montserrat);
+  font-size: 12.5px;
+  font-weight: 300;
+  color: rgba(240, 232, 208, 0.5);
+  line-height: 1.8;
+}
+
+.certFooter {
+  position: relative;
+  z-index: 1;
+}
+
+.dossierBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 0.5px solid rgba(196, 168, 105, 0.1);
+  width: 100%;
+  text-align: left;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dossierBtn span:first-child {
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  font-family: var(--font-montserrat);
+  transition: letter-spacing 0.4s ease, color 0.4s ease;
+}
+
+.dossierBtn:hover span:first-child {
+  letter-spacing: 0.45em;
+  color: var(--gold-light);
+}
+
+.dossierArrow {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+  color: var(--gold);
+  font-size: 14px;
+}
+
+.dossierBtn:hover .dossierArrow {
+  transform: translateX(10px);
+  color: var(--gold-light);
+}
+
+.cardGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(196, 168, 105, 0.06) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.certCard:hover .cardGlow {
+  opacity: 1;
+}
+
+/* PERFECTION GRID */
+.perfectionGrid {
+  grid-column: span 2;
+  background: rgba(196, 168, 105, 0.04);
+  border: 0.5px solid rgba(196, 168, 105, 0.22);
+  padding: 32px;
+  margin-top: 2px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 768px) {
+  .perfectionGrid {
+    grid-column: span 1;
+    padding: 24px;
+  }
+
+  .gridItems {
+    grid-template-columns: 1fr;
+  }
+
+  .gridItems::after,
+  .gridItems::before {
+    display: none;
+  }
+}
+
+.gridVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gridTitle {
+  font-family: var(--font-cormorant);
+  font-size: 24px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+.gridItems {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  position: relative;
+}
+
+.gridItems::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.5px;
+  height: 80%;
+  background: rgba(196, 168, 105, 0.15);
+}
+
+.gridItems::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 0.5px;
+  background: rgba(196, 168, 105, 0.15);
+}
+
+.gridItem {
+  padding: 18px 20px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gridItemVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gridLabel {
+  display: block;
+  font-family: var(--font-montserrat);
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--gold-muted);
+}
+
+.gridValue {
+  font-family: var(--font-cormorant);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--gold-light);
+  display: block;
+  margin-top: 6px;
+}
+
+.gridNote {
+  font-family: var(--font-montserrat);
+  font-size: 9px;
+  font-weight: 300;
+  color: rgba(196, 168, 105, 0.25);
+  margin-top: 16px;
+  font-style: italic;
+  line-height: 1.6;
+}
