@@ -27,7 +27,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [openSection, setOpenSection] = useState<'collections'|'experience'|'care'|null>(null);
 
-  const sections = [
+  type FooterSectionKey = 'collections' | 'experience' | 'care';
+  const sections: Array<{ key: FooterSectionKey; label: string; links: { label: string; href: string }[] }> = [
     { key: 'collections', label: 'Collections', links: footerLinks.collections },
     { key: 'experience', label: 'Experience', links: footerLinks.experience },
     { key: 'care', label: 'Client Care', links: footerLinks.care },
